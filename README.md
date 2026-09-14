@@ -17,7 +17,7 @@ composer.json          Magento 2.4.8 metapackage + volt-test/php-sdk (require-de
 loadtest/
   magento-guest-checkout.php   the article's checkout scenario, verbatim
   export-skus.sh               builds data/skus.csv from the catalogue
-  sync-from-article.sh         regenerates the script from the blog post
+  sync-from-article.sh         maintainer tool: regenerates the script from the post's MDX
   responses/                   raw REST responses captured during validation
 compose.yaml           app, loadtest, MariaDB 11.4, OpenSearch 2.19, Redis 7.2
 Dockerfile, docker/    PHP 8.3 FPM + nginx runtime; no application inside
