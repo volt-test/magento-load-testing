@@ -1,5 +1,7 @@
 # Magento 2 load testing example
 
+Public repository: https://github.com/volt-test/magento-load-testing
+
 A Magento Open Source 2.4.8 project with the VoltTest load test from
 [Magento 2 Load Testing Tools: 5 Options Compared](https://volt-test.com/blog/magento-load-testing-tools)
 living in the same repository, the same `composer.json` and the same vendor
