@@ -1,0 +1,115 @@
+# Magento 2.4.8 target for the checkout load test in
+# frontend-portal/content/blog/magento-load-testing-tools.mdx.
+#
+#   docker compose up -d                      first boot: composer install + setup:install
+#   GENERATE_FIXTURES=1 docker compose up -d  ... plus the Performance Toolkit small profile
+#   docker compose run --rm loadtest          run loadtest/magento-guest-checkout.php
+#
+# The repository is mounted into the app container, so the code on disk is the
+# code that runs. vendor, generated, var, pub/static and pub/media live in named
+# volumes for speed on macOS. Never add this host to DEMO_TARGET_HOSTS.
+services:
+  app:
+    build: .
+    image: magento-app-target
+    ports:
+      - "8090:8080"
+    environment:
+      MAGENTO_BASE_URL: ${MAGENTO_BASE_URL:-http://localhost:8090/}
+      MAGENTO_MODE: ${MAGENTO_MODE:-default}
+      GENERATE_FIXTURES: ${GENERATE_FIXTURES:-0}
+      FIXTURE_PROFILE: ${FIXTURE_PROFILE:-small}
+      PHP_FPM_MAX_CHILDREN: ${PHP_FPM_MAX_CHILDREN:-6}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin123456}
+      # Marketplace keys, only needed if composer.json points at repo.magento.com:
+      # COMPOSER_AUTH='{"http-basic":{"repo.magento.com":{"username":"...","password":"..."}}}'
+      COMPOSER_AUTH: ${COMPOSER_AUTH:-}
+    volumes:
+      - .:/var/www/html
+      - vendor:/var/www/html/vendor
+      - generated:/var/www/html/generated
+      - app_var:/var/www/html/var
+      - pub_static:/var/www/html/pub/static
+      - pub_media:/var/www/html/pub/media
+    depends_on:
+      db:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Runs the load test from the same image and the same vendor tree, in its own
+  # container so the generator is not the php-fpm process it measures. Good for
+  # proving the script; use VoltTest Cloud for numbers.
+  loadtest:
+    image: magento-app-target
+    profiles: ["loadtest"]
+    entrypoint: ["php", "loadtest/magento-guest-checkout.php"]
+    environment:
+      TARGET_URL: http://app:8080
+      VUS: ${VUS:-3}
+      DURATION: ${DURATION:-30s}
+    volumes:
+      - .:/var/www/html
+      - vendor:/var/www/html/vendor
+    depends_on:
+      - app
+
+  db:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: magento
+      MARIADB_USER: magento
+      MARIADB_PASSWORD: magento
+      MARIADB_ROOT_PASSWORD: root
+    command:
+      - --max_connections=300
+      - --innodb_buffer_pool_size=512M
+      - --max_allowed_packet=64M
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  opensearch:
+    image: opensearchproject/opensearch:2.19.1
+    environment:
+      discovery.type: single-node
+      DISABLE_SECURITY_PLUGIN: "true"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+      bootstrap.memory_lock: "false"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - os_data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s >/dev/null"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+
+  redis:
+    image: redis:7.2-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  vendor:
+  generated:
+  app_var:
+  pub_static:
+  pub_media:
+  db_data:
+  os_data:

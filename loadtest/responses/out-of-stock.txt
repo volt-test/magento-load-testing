@@ -1,0 +1,3 @@
+order 1: add-item HTTP 200 | payment-information -> "91" HTTP 200
+order 2: add-item HTTP 400 | payment-information -> {"message":"Some of the products are disabled."} HTTP 400
+order 3: add-item HTTP 400 | payment-information -> {"message":"Some of the products are disabled."} HTTP 400

@@ -1,0 +1,32 @@
+# Everything below is written by `composer install` (magento/magento2-base
+# deploys the application skeleton into the project root) or by Magento at
+# runtime. The repository owns composer.json, compose.yaml, Dockerfile,
+# docker/, loadtest/ and this file.
+/app/*
+!/app/etc/
+/app/etc/*
+/bin/
+/dev/
+/lib/
+/phpserver/
+/pub/
+/setup/
+/var/
+/generated/
+/vendor/
+/.editorconfig
+/.htaccess
+/.htaccess.sample
+/.php-cs-fixer.dist.php
+/.user.ini
+/auth.json
+/auth.json.sample
+/grunt-config.json.sample
+/nginx.conf.sample
+/package.json.sample
+/index.php
+/COPYING.txt
+/LICENSE*.txt
+/SECURITY.md
+/CHANGELOG.md
+/Gruntfile.js.sample

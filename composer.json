@@ -1,0 +1,67 @@
+{
+  "name": "volt-test/magento-load-testing-example",
+  "description": "Magento Open Source 2.4.8 with a VoltTest load test in the same repository",
+  "type": "project",
+  "license": "MIT",
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "laminas/laminas-dependency-plugin": true,
+      "magento/*": true,
+      "php-http/discovery": true,
+      "volt-test/php-sdk": true
+    },
+    "preferred-install": "dist",
+    "sort-packages": true
+  },
+  "require": {
+    "magento/composer-dependency-version-audit-plugin": "~0.1",
+    "magento/composer-root-update-plugin": "^2.0.4",
+    "magento/product-community-edition": "2.4.8"
+  },
+  "require-dev": {
+    "volt-test/php-sdk": "^1.2"
+  },
+  "autoload": {
+    "exclude-from-classmap": [
+      "**/dev/**",
+      "**/update/**",
+      "*/*/Test/**/*Test"
+    ],
+    "files": [
+      "app/etc/NonComposerComponentRegistration.php"
+    ],
+    "psr-0": {
+      "": [
+        "app/code/",
+        "generated/code/"
+      ]
+    },
+    "psr-4": {
+      "Magento\\": "app/code/Magento/",
+      "Magento\\Framework\\": "lib/internal/Magento/Framework/",
+      "Magento\\Setup\\": "setup/src/Magento/Setup/"
+    }
+  },
+  "conflict": {
+    "gene/bluefoot": "*"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "extra": {
+    "magento-force": "override",
+    "magento-deploy-ignore": {
+      "*": [
+        "/.gitignore",
+        "/README.md",
+        "/composer.json"
+      ]
+    }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://mirror.mage-os.org/"
+    }
+  ]
+}

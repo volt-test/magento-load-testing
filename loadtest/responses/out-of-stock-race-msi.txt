@@ -1,0 +1,7 @@
+== MSI store: qty=1, two carts add the item, then both place
+cart 1 add-item: {"item_id":167,"sku":"product_dynamic_798","qty":1,"name":"Simple Product 798","price":17.85,"produc
+cart 2 add-item: {"item_id":168,"sku":"product_dynamic_798","qty":1,"name":"Simple Product 798","price":17.85,"produc
+cart 1 payment-information: 86 HTTP 200
+cart 2 payment-information: {"message":"Some of the products are out of stock."} HTTP 400
+== salable qty now 0: fresh cart add-item
+add-item: {"message":"Product that you are trying to add is not available."} HTTP 400
